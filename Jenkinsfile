@@ -8,7 +8,13 @@ pipeline {
             }
         }
 
-        // Étape pour l'analyse SonarQube sans les fichiers .java
+        stage('Compile') {
+            steps {
+                // Assurez-vous que Maven est installé et configuré dans Jenkins
+                bat 'mvn clean compile'
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
                 script {
