@@ -24,7 +24,7 @@ pipeline {
                             ${scannerHome}\\bin\\sonar-scanner.bat ^
                             -Dsonar.projectKey=stage ^
                             -Dsonar.host.url=http://localhost:9000 ^
-                            -Dsonar.login=sqp_c42854901308a8b594be233bafa1f87abeccb71b ^
+                            -Dsonar.login=sqa_17ad9a4f6cd4022e49fdd58611ce3e18488859c8 ^
                             -Dsonar.sources=./src ^
                             -Dsonar.java.binaries=./target/classes
                         """
