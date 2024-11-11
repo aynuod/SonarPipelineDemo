@@ -1,6 +1,6 @@
 # Spring Boot Project with SonarQube Analysis in Jenkins Pipeline
 
-## Overview
+
 
 This project demonstrates the integration of SonarQube code analysis into a Jenkins Pipeline for a Spring Boot project. By incorporating continuous code quality inspection into our CI/CD pipeline, we ensure that each update meets the defined quality standards before proceeding to the next stage of deployment.
 
