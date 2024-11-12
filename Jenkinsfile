@@ -2,7 +2,9 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = "aynuod/sonarpipelinedemo:latest"
-        DOCKER_CREDENTIALS_ID = 'dockerhub_credentials'
+        DOCKER_USERNAME = 'aynuod'
+        DOCKER_PASSWORD = 'dckr_pat_GZx1tl4V1jCt0PSz_JZxrrXbL2s'
+        APP_PORT = '8081'  // Port pour le déploiement
     }
     stages {
         stage('Checkout') {
@@ -46,7 +48,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Ajout de logging
                     echo "Starting Docker build..."
                     bat "docker build --no-cache -t ${DOCKER_IMAGE} ."
                     echo "Docker build completed"
@@ -54,16 +55,38 @@ pipeline {
             }
         }
         
-        stage('Push Docker Image to Docker Hub') {
+stage('Push Docker Image to Docker Hub') {
+    steps {
+        script {
+            echo "Starting Docker push..."
+            // Remplacez "votre_mot_de_passe" par votre mot de passe Docker explicite
+            bat "dckr_pat_GZx1tl4V1jCt0PSz_JZxrrXbL2s | docker login -u aynuod --password-stdin"
+            bat "docker push ${DOCKER_IMAGE}"
+            bat "docker logout"
+            echo "Docker push completed"
+        }
+    }
+}
+
+
+        stage('Deploy Container') {
             steps {
                 script {
-                    echo "Starting Docker push..."
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        bat "echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin"
-                        bat "docker push ${DOCKER_IMAGE}"
-                        bat "docker logout"
-                    }
-                    echo "Docker push completed"
+                    echo "Starting deployment..."
+                    // Arrêt et suppression du conteneur existant s'il existe
+                    bat """
+                        docker ps -f name=sonarpipelinedemo -q | findstr . && docker stop sonarpipelinedemo || echo "Container not running"
+                        docker ps -a -f name=sonarpipelinedemo -q | findstr . && docker rm sonarpipelinedemo || echo "No container to remove"
+                    """
+                    
+                    // Déploiement du nouveau conteneur
+                    bat """
+                        docker run -d ^
+                        --name sonarpipelinedemo ^
+                        -p ${APP_PORT}:8080 ^
+                        ${DOCKER_IMAGE}
+                    """
+                    echo "Deployment completed. Application running on port ${APP_PORT}"
                 }
             }
         }
@@ -72,16 +95,22 @@ pipeline {
     post {
         always {
             echo 'Pipeline terminé.'
-            // Nettoyage
             script {
                 bat "docker system prune -f"
             }
         }
+        success {
+            echo "Application déployée avec succès! Accessible sur http://localhost:${APP_PORT}"
+        }
         failure {
             echo 'Pipeline échoué.'
-        }
-        success {
-            echo 'Pipeline réussi.'
+            // Nettoyage en cas d'échec
+            script {
+                bat """
+                    docker ps -f name=sonarpipelinedemo -q | findstr . && docker stop sonarpipelinedemo || echo "No container to stop"
+                    docker ps -a -f name=sonarpipelinedemo -q | findstr . && docker rm sonarpipelinedemo || echo "No container to remove"
+                """
+            }
         }
     }
 }
