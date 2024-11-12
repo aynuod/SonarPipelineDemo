@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "aynuod/SonarPipelineDemo:latest"
+        DOCKER_IMAGE = "aynuod/sonarpipelinedemo:latest"
         DOCKER_CREDENTIALS_ID = 'dockerhub_credentials'  // Configurez vos identifiants dans Jenkins
     }
 
