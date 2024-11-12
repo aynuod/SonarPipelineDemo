@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "aynuod/SonarPipelineDemo:latest"
+        DOCKER_CREDENTIALS_ID = 'dockerhub_credentials'  // Configurez vos identifiants dans Jenkins
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -39,6 +44,36 @@ pipeline {
                     waitForQualityGate abortPipeline: true
                 }
             }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}")
+                }
+            }
+        }
+
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
+                        docker.image("${DOCKER_IMAGE}").push()
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline terminé.'
+        }
+        failure {
+            echo 'Pipeline échoué.'
+        }
+        success {
+            echo 'Pipeline réussi.'
         }
     }
 }
