@@ -4,7 +4,6 @@ pipeline {
         DOCKER_IMAGE = "aynuod/sonarpipelinedemo:latest"
         DOCKER_USERNAME = 'aynuod'
         DOCKER_PASSWORD = 'dckr_pat_GZx1tl4V1jCt0PSz_JZxrrXbL2s'
-        APP_PORT = '8081'  // Port pour le déploiement
     }
     stages {
         stage('Checkout') {
@@ -71,21 +70,7 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 script {
-                    echo "Starting deployment..."
-                    // Arrêt et suppression du conteneur existant s'il existe
-                    bat """
-                        docker ps -f name=sonarpipelinedemo -q | findstr . && docker stop sonarpipelinedemo || echo "Container not running"
-                        docker ps -a -f name=sonarpipelinedemo -q | findstr . && docker rm sonarpipelinedemo || echo "No container to remove"
-                    """
-                    
-                    // Déploiement du nouveau conteneur
-                    bat """
-                        docker run -d ^
-                        --name sonarpipelinedemo ^
-                        -p ${APP_PORT}:8080 ^
-                        ${DOCKER_IMAGE}
-                    """
-                    echo "Deployment completed. Application running on port ${APP_PORT}"
+                    bat "docker run -d -p 4201:80 ${DOCKER_TEST_IMAGE}"
                 }
             }
         }
@@ -93,23 +78,7 @@ pipeline {
     
     post {
         always {
-            echo 'Pipeline terminé.'
-            script {
-                bat "docker system prune -f"
-            }
-        }
-        success {
-            echo "Application déployée avec succès! Accessible sur http://localhost:${APP_PORT}"
-        }
-        failure {
-            echo 'Pipeline échoué.'
-            // Nettoyage en cas d'échec
-            script {
-                bat """
-                    docker ps -f name=sonarpipelinedemo -q | findstr . && docker stop sonarpipelinedemo || echo "No container to stop"
-                    docker ps -a -f name=sonarpipelinedemo -q | findstr . && docker rm sonarpipelinedemo || echo "No container to remove"
-                """
-            }
+            echo "Pipeline terminé."
         }
     }
 }
