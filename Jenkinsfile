@@ -70,7 +70,7 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 script {
-                    bat "docker run -d -p 4201:80 ${DOCKER_TEST_IMAGE}"
+                    bat "docker run -d -p 4201:80 ${DOCKER_IMAGE}"
                 }
             }
         }
