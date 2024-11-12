@@ -60,6 +60,7 @@ pipeline {
                 script {
                     echo "Starting Docker push..."
                     bat 'echo dckr_pat_GZx1tl4V1jCt0PSz_JZxrrXbL2s | docker login -u aynuod --password-stdin'
+                    bat 'docker login -u aynuod -p dckr_pat_GZx1tl4V1jCt0PSz_JZxrrXbL2s'
                     bat "docker push ${DOCKER_IMAGE}"
                     bat "docker logout"
                     echo "Docker push completed"
