@@ -55,18 +55,17 @@ pipeline {
             }
         }
         
-stage('Push Docker Image to Docker Hub') {
-    steps {
-        script {
-            echo "Starting Docker push..."
-            // Remplacez "votre_mot_de_passe" par votre mot de passe Docker explicite
-            bat "dckr_pat_GZx1tl4V1jCt0PSz_JZxrrXbL2s | docker login -u aynuod --password-stdin"
-            bat "docker push ${DOCKER_IMAGE}"
-            bat "docker logout"
-            echo "Docker push completed"
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                script {
+                    echo "Starting Docker push..."
+                    bat 'echo dckr_pat_GZx1tl4V1jCt0PSz_JZxrrXbL2s | docker login -u aynuod --password-stdin'
+                    bat "docker push ${DOCKER_IMAGE}"
+                    bat "docker logout"
+                    echo "Docker push completed"
+                }
+            }
         }
-    }
-}
 
 
         stage('Deploy Container') {
